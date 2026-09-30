@@ -11,13 +11,33 @@ const STORAGE_KEYS = {
 /* =====================================================
    1. TAB NAVIGATION
    ===================================================== */
+/* =====================================================
+   1. TAB NAVIGATION
+   ===================================================== */
 const TAB_ACTIVE = "bg-sky-600 text-white shadow".split(" ");
 const TAB_INACTIVE = "text-slate-600 hover:bg-slate-100".split(" ");
 
 const tabButtons = document.querySelectorAll(".tab-btn");
 const tabPanels = document.querySelectorAll(".tab-panel");
+const validTabs = Array.from(tabButtons).map((b) => b.dataset.tab);
 
-function switchTab(name) {
+// Sinkronkan alamat: ?tab=expense / ?tab=bookmark / ?tab=quiz
+// mode: "push" (klik tab), "replace" (saat halaman dibuka)
+function updateUrl(name, mode) {
+  const params = new URLSearchParams(location.search);
+  if (params.get("tab") === name) return; // sudah sesuai
+
+  params.set("tab", name);
+  const newUrl = `${location.pathname}?${params}`;
+  try {
+    if (mode === "replace") history.replaceState(null, "", newUrl);
+    else history.pushState(null, "", newUrl);
+  } catch {
+    // beberapa browser membatasi ini di file:// -> abaikan saja
+  }
+}
+
+function switchTab(name, mode = "push") {
   tabButtons.forEach((btn) => {
     const isActive = btn.dataset.tab === name;
     btn.classList.remove(...TAB_ACTIVE, ...TAB_INACTIVE);
@@ -30,31 +50,27 @@ function switchTab(name) {
   });
 
   localStorage.setItem(STORAGE_KEYS.activeTab, name);
-  // Sinkronkan alamat: #expense, #links, atau #quiz
-  if (location.hash !== "#" + name) location.hash = name;
+  updateUrl(name, mode);
 }
-
 
 tabButtons.forEach((btn) => {
   btn.addEventListener("click", () => switchTab(btn.dataset.tab));
 });
 
-// Pulihkan tab terakhir (validasi dulu supaya tidak error kalau datanya aneh)
-const validTabs = Array.from(tabButtons).map((b) => b.dataset.tab);
-const savedTab = localStorage.getItem(STORAGE_KEYS.activeTab);
-const hashTab = location.hash.slice(1); // "#quiz" -> "quiz"
-
-// Prioritas: alamat (hash) > tab tersimpan > default
-let startTab = "expense";
-if (validTabs.includes(hashTab)) startTab = hashTab;
-else if (validTabs.includes(savedTab)) startTab = savedTab;
-switchTab(startTab);
-
-// Tombol Back/Forward browser atau hash diubah manual
-window.addEventListener("hashchange", () => {
-  const name = location.hash.slice(1);
+// Tombol Back/Forward browser
+window.addEventListener("popstate", () => {
+  const name = new URLSearchParams(location.search).get("tab");
   if (validTabs.includes(name)) switchTab(name);
 });
+
+// Tab awal: ?tab= di alamat > tab tersimpan > default "expense"
+const urlTab = new URLSearchParams(location.search).get("tab");
+const savedTab = localStorage.getItem(STORAGE_KEYS.activeTab);
+
+let startTab = "expense";
+if (validTabs.includes(urlTab)) startTab = urlTab;
+else if (validTabs.includes(savedTab)) startTab = savedTab;
+switchTab(startTab, "replace");
 
 /* =====================================================
    2. EXPENSE TRACKER PRO
