@@ -15,4 +15,4 @@ Aplikasi web satu halaman dengan tiga fitur (dipisah tab):
 HTML5, Tailwind CSS (CDN), JavaScript (DOM, localStorage).
 
 ## Cara menjalankan
-Buka `index.html` di browser.# ifs24004-pabwe-p3
+
