@@ -1,4 +1,4 @@
-#ifs24004-pabwe-p3
+# ifs24004-pabwe-p3
 
 Praktikum 3 PABWE
 
@@ -15,4 +15,5 @@ Aplikasi web satu halaman dengan tiga fitur (dipisah tab):
 HTML5, Tailwind CSS (CDN), JavaScript (DOM, localStorage).
 
 ## Cara menjalankan
+buka link ini [kunjungi hasil kerja saya] (ifs24004-pabwe-p3.netlify.app)
 
