@@ -30,7 +30,10 @@ function switchTab(name) {
   });
 
   localStorage.setItem(STORAGE_KEYS.activeTab, name);
+  // Sinkronkan alamat: #expense, #links, atau #quiz
+  if (location.hash !== "#" + name) location.hash = name;
 }
+
 
 tabButtons.forEach((btn) => {
   btn.addEventListener("click", () => switchTab(btn.dataset.tab));
@@ -39,7 +42,19 @@ tabButtons.forEach((btn) => {
 // Pulihkan tab terakhir (validasi dulu supaya tidak error kalau datanya aneh)
 const validTabs = Array.from(tabButtons).map((b) => b.dataset.tab);
 const savedTab = localStorage.getItem(STORAGE_KEYS.activeTab);
-switchTab(validTabs.includes(savedTab) ? savedTab : "expense");
+const hashTab = location.hash.slice(1); // "#quiz" -> "quiz"
+
+// Prioritas: alamat (hash) > tab tersimpan > default
+let startTab = "expense";
+if (validTabs.includes(hashTab)) startTab = hashTab;
+else if (validTabs.includes(savedTab)) startTab = savedTab;
+switchTab(startTab);
+
+// Tombol Back/Forward browser atau hash diubah manual
+window.addEventListener("hashchange", () => {
+  const name = location.hash.slice(1);
+  if (validTabs.includes(name)) switchTab(name);
+});
 
 /* =====================================================
    2. EXPENSE TRACKER PRO
